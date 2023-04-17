@@ -1,18 +1,12 @@
 class Parking():
     parkingSpaces =  []
-    ticketNumber = [1,2,3,4,5,6,7,8,9,10]
-    paymentStatus_dict = {}
-    
+    ticket = [1,2,3,4,5,6,7,8,9,10]
+    currentTicket = {}
     '''
-        currentTicket_dict: {
-        'ticketNumber': {'paid': True }
-        '1' : {'paid': True }
-        }
+    Action = 'show' for Administration
     '''
-    
     def driver(self):
-        parking = True
-        while parking:
+        while True:
             action = input('Would you like to park,pay or leave?').lower()
             if action == 'park':
                self.takeTicket()
@@ -21,54 +15,76 @@ class Parking():
             if action == 'leave':
                 self.leaveGarage()
             if action == 'show':
-                print(self.parkingSpaces)
-                print(self.paymentStatus_dict)
-                print(self.ticketNumber)
+                print(f'parking spaces taken{self.parkingSpaces}\n')
+                print(f'payment status {self.currentTicket}\n')
+                print(f'ticket number available{self.ticket}\n')
+            else:
+                print('Please enter a valid action.')
+                
     def takeTicket(self):
-        if len(self.ticketNumber) > 0:
-            new_ticket = self.ticketNumber.pop(0) 
+        if len(self.ticket) > 0:
+            new_ticket = self.ticket.pop(0) 
             self.parkingSpaces.append(new_ticket)
-            print(f'Your ticket number is {new_ticket}, please park in designated space.')
-            print(f'There are now {len(self.ticketNumber)} spaces left.')
-            self.paymentStatus_dict[new_ticket] = {'paid': False}
-            print(self.paymentStatus_dict)
+            self.currentTicket[new_ticket] = {'paid': False}
+            print(f'Your ticket number is {new_ticket}')
+            res = input('Would you like to pay now? yes or no?').lower()
+            if res == 'yes':
+                self.payForParking()
+            else:
+                self.driver()                
         else:
-            print('There are no spaces left.')
+            print('Sorry! The parking is full.')
+            
     def payForParking(self):
-        response = int(input('What ticket number would you like to pay?').lower())
+        payment = None
+        while True:
+            try:
+                response = int(input('What ticket number would you like to pay?'))
+                break
+            except:
+                print('Please enter a valid ticket number.')
         if response in self.parkingSpaces:
-            self.paymentStatus_dict[response]['paid'] = True
-            print(f'Paid ticket {response} succesfully!')
-            self.leaveGarage()
+            payment = input('Please pay $5 for 15 minutes. yes or no?').lower()
+            if payment == 'yes':
+                self.currentTicket[response]['paid'] = True
+                print('Thank you! You have 15 minutes to leave.')
+            else:
+                print('No payment recieved!')
         else:
             print(f'{response} is not a valid ticket number.')
-    def leaveGarage(self):
-        response = int(input('Are you ready to leave? Enter ticket number:').lower())
-        if response in self.parkingSpaces:
-            if self.paymentStatus_dict[response]['paid'] == True:
-                print('Park here again any time!')
-                self.parkingSpaces.remove(response)
-                self.ticketNumber.append(response)
-                self.ticketNumber = sorted(self.ticketNumber)
-                del self.paymentStatus_dict[response]
-                # print(self.ticketNumber)
-                # print(self.paymentStatus_dict)
-                # print(self.parkingSpaces)
-            else:
+            res = input('Continue to pay or cancel?').lower()
+            if res == 'pay':
                 self.payForParking()
-                if self.paymentStatus_dict[response]['paid'] == True:
-                    print(f'Ticket {response} has been paid, you are free to go!.')
+            elif res == 'cancel':
+                self.driver()
+                
+    def leaveGarage(self):
+        while True:
+            try:
+                response = int(input('Leaving? Enter ticket number:'))
+                break
+            except:
+                print('Please enter a valid ticket number.')
+        if response in self.parkingSpaces:
+            if self.currentTicket[response]['paid'] == True:
+                print('Thank you! Have a good day!')
+                self.parkingSpaces.remove(response)
+                self.ticket.append(response)
+                self.ticket = sorted(self.ticket)
+                del self.currentTicket[response]
+            else:
+                print('Please pay')
+                self.payForParking()
+                if self.currentTicket[response]['paid'] == True:
                     self.parkingSpaces.remove(response)
-                    self.ticketNumber.append(response)
-                    self.ticketNumber = sorted(self.ticketNumber)
-                    del self.paymentStatus_dict[response]
+                    self.ticket.append(response)
+                    self.ticket = sorted(self.ticket)
+                    del self.currentTicket[response]
                 else:
-                    print("You have to pay")
+                    print("Please pay")
         else:
             print('Invalid entry')
-            
-        
+                  
 car1 = Parking()
-
 car1.driver()
      
